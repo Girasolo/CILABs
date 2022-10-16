@@ -1,5 +1,5 @@
 # LAB 1: Set Covering
-### Francesco Scalera, Giuseppe Esposito, Filippo Cardano
+### Francesco Scalera, Giuseppe Esposito, Filippo Maria Cardano (s292113)
 
 Given a number N and some lists of integers P = (L_0, L_1, L_2, ..., L_n),
 determine, if possible, S = (L_{s_0}, L_{s_1}, L_{s_2}, ..., L_{s_n}),
@@ -16,4 +16,21 @@ In particular, our implementation concerns:
  - Since we sorted the list set by the length of each list, we decided to set as initial state the first element of the randomly generated list
  - After generating the initial block (list of lists) we just kept the unique values 
 
-This is the result for different N:
+## Results
+
+Here we display the execution times of the A* algorithm we developed
+
+| **Iteration \ N** | **5** | **10** | **20** | **100**           | **500**           | **1000**          |
+|-------------------|-------|--------|--------|-------------------|-------------------|-------------------|
+| w                 | 5     | 10     | 23     | could not compute | could not compute | could not compute |
+| 1                 | 0.0   | 0.01   | 3.54   |                   |                   |                   |
+| 2                 | 0.0   | 0.0    | 3.86   |                   |                   |                   |
+| 3                 | 0.0   | 0.0    | 3.63   |                   |                   |                   |
+| 4                 | 0.0   | 0.0    | 3.61   |                   |                   |                   |
+| 5                 | 0.0   | 0.01   | 3.68   |                   |                   |                   |
+| 6                 | 0.0   | 0.0    | 3.81   |                   |                   |                   |
+| 7                 | 0.0   | 0.0    | 3.83   |                   |                   |                   |
+| 8                 | 0.0   | 0.01   | 4.67   |                   |                   |                   |
+| 9                 | 0.0   | 0.0    | 3.71   |                   |                   |                   |
+| 10                | 0.0   | 0.0    | 4.28   |                   |                   |                   |
+| Average           | 0.0   | 0.0    | 3.868  |                   |                   |                   |
