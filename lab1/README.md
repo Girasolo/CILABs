@@ -14,5 +14,6 @@ In particular, our implementation concerns:
  - We chose the length of a list as a unit cost
  - We sorted the list set by the length of each list
  - Since we sorted the list set by the length of each list, we decided to set as initial state the first element of the randomly generated list
+ - After generating the initial block (list of lists) we just kept the unique values 
 
 This is the result for different N:
