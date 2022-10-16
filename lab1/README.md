@@ -23,14 +23,14 @@ Here we display the execution times of the A* algorithm we developed
 | **Iteration \ N** | **5** | **10** | **20** | **100**           | **500**           | **1000**          |
 |-------------------|-------|--------|--------|-------------------|-------------------|-------------------|
 | w                 | 5     | 10     | 23     | could not compute | could not compute | could not compute |
-| 1                 | 0.0   | 0.01   | 3.54   |                   |                   |                   |
-| 2                 | 0.0   | 0.0    | 3.86   |                   |                   |                   |
-| 3                 | 0.0   | 0.0    | 3.63   |                   |                   |                   |
-| 4                 | 0.0   | 0.0    | 3.61   |                   |                   |                   |
-| 5                 | 0.0   | 0.01   | 3.68   |                   |                   |                   |
-| 6                 | 0.0   | 0.0    | 3.81   |                   |                   |                   |
-| 7                 | 0.0   | 0.0    | 3.83   |                   |                   |                   |
-| 8                 | 0.0   | 0.01   | 4.67   |                   |                   |                   |
-| 9                 | 0.0   | 0.0    | 3.71   |                   |                   |                   |
-| 10                | 0.0   | 0.0    | 4.28   |                   |                   |                   |
-| Average           | 0.0   | 0.0    | 3.868  |                   |                   |                   |
+| 1                 | 4 steps; 60 states   | 6 steps; 1,096 states   | 6 steps; 470,898 states   |                   |                   |                   |
+| 2                 | 5 steps; 42 states   | 6 steps; 1,126 states    | 6 steps; 437,832 states   |                   |                   |                   |
+| 3                 | 5 steps; 33 states   | 5 steps; 748 states    | 6 steps; 469,067 states   |                   |                   |                   |
+| 4                 | 5 steps; 42 states   | 5 steps; 1,715 states    | 6 steps; 538,164 states   |                   |                   |                   |
+| 5                 | 5 steps; 59 states   | 5 steps; 1,287 states   | 6 steps; 477,490 states   |                   |                   |                   |
+| 6                 | 5 steps; 33 states   | 5 steps; 1,021 states    | 6 steps; 438,632 states   |                   |                   |                   |
+| 7                 | 5 steps; 42 states   | 4 steps; 749 states    | 6 steps; 517,984 states   |                   |                   |                   |
+| 8                 | 4 steps; 35 states   | 5 steps; 2,025 states   | 6 steps; 433,693 states   |                   |                   |                   |
+| 9                 | 6 steps; 81 states   | 5 steps; 1,171 states    | 6 steps; 483,435 states   |                   |                   |                   |
+| 10                | 5 steps; 33 states   | 6 steps; 1,235 states    | 6 steps; 446,306 states   |                   |                   |                   |
+| Average           | 5 steps; 46 states   | 5 steps; 1217 stetes    | 6 steps; 471,350 states  |                   |                   |                   |
