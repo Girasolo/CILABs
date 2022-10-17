@@ -18,7 +18,7 @@ In particular, our implementation concerns:
 
 ## Results
 
-Here we display for our A* algorithm the number of steps it took to find a solution, the number of visited states and the 'w' of the final solution.
+Here we display for our A* algorithm the number of steps it took to find a solution, the number of visited states and the weight of the final solution i.e. the sum of lenght of the internal lists.
 The tests were repeated 10 times.
 
 | **Test \ N** | **5** | **10** | **20** | **100**           | **500**           | **1000**          |
