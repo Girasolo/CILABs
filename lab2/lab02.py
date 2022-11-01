@@ -2,6 +2,7 @@ from base64 import decode
 import random 
 import numpy as np
 from tkinter import N
+import sys
 
 # Function for the problem 
 def problem(N, seed=42):
@@ -14,6 +15,7 @@ def problem(N, seed=42):
     ]
 
 def checkFeasible_initial(individual, N):
+    '''From np array of Lists and size of problem, returns if it provides a possible solution <type 'Bool'>'''
     goal = set(list(range(N)))
     coverage = set()
     for list_ in individual:
@@ -40,26 +42,24 @@ def checkFeasible_offspring(individual01, N, initial_formulation):
     return False
 
 
-def createIndividual(indexes,len_):
-    individual01 = np.zeros(len_, dtype=int)
-    individual01[indexes] = 1
-    return list(individual01)
+def createIndividual_initial(indexes,len_):
+    '''From list of Indexes, returns mask of the individual <type 'List'>'''
+    individual = np.zeros(len_, dtype=bool)
+    individual[indexes] = True
+    return list(individual)
 
-def createFitness(induvual):
+def createFitness(individual):
     fitness = 0
-    for list_ in induvual:
+    for list_ in individual:
         fitness += len(list_)
-    return fitness 
-
-
+    return fitness
 
 def select_parent(population, tournament_size = 2):
     subset = random.choices(population, k = tournament_size)
     return min(subset, key=lambda i: i [0])
 
 def cross_over(g1,g2, len_):
-    cut = random.randint(0,len_)
-
+    cut = random.randint(0,len_-1)
     return g1[:cut] + g2[cut:]
 # cross_over con più tagli
 
@@ -73,6 +73,7 @@ def mutation(g, len_):
     return g[:point] + [1-g[point]] + g[point+1:]
 
 N = [5]
+POPULATION_SIZE = 50
 
 #Inital list of lists
 for i in N:
@@ -96,37 +97,59 @@ gap = list(range(0,len(initial_formulation)))
 population = list()
 
 # we use a while since if the checks will give always false, i can also have a population that too little in size
-while len(population) != ((len(initial_formulation)//2)+1):
-    indexes = np.random.choice(gap, (len(initial_formulation)//2)+1)
-    individual = np.array(initial_formulation, dtype=object)[indexes]
-    if checkFeasible_initial(individual,5) == True:
-        individual01 = createIndividual(indexes, len(initial_formulation))
-        population.append((createFitness(individual),individual01))
+while len(population) != (POPULATION_SIZE):
+    # list of random indexes
+    # this avoid duplicate samples of the same index when initializing the first individuals
+    individual_random_indexes = random.sample(gap, (len(initial_formulation)//2)+1)
+    # np array of lists based on random indexes
+    individual_lists = np.array(initial_formulation, dtype=object)[individual_random_indexes]
+    # #print(individual_random_indexes)
+    # #print(individual_lists)
+    if checkFeasible_initial(individual_lists,5) == True:
+        individual = createIndividual_initial(individual_random_indexes, len(initial_formulation))
+        population.append((createFitness(individual_lists),individual))
 
-for _ in range(3):
+initial_formulation_np = np.array(initial_formulation, dtype=object)
+
+print("STARTING")
+for ind in population:
+    print(ind[0])
+print("STARTING")
+
+for _ in range(10):
     print("iteration: ", _)
     offspring_pool = list()
-    print("initial population: ", population)
+    # print("initial population: ", population)
+    print("pop length 1: ", len(population))
     i = 0
     while len(offspring_pool) != 50:
-        print(i)
-        if random.random() < .3:
-            p = select_parent(population) 
-            offspring = mutation(p[1], len(initial_formulation))
+        if random.random() < 0.3:
+            p = select_parent(population)
+            offspring_mask = mutation(p[1], len(initial_formulation))
         else:
             p1 = select_parent(population)
             p2 = select_parent(population)
-            offspring = cross_over(p1[1],p2[1], len(initial_formulation))
-        if checkFeasible_offspring(offspring, 5, initial_formulation) == True:
-            offspring01 = createIndividual(indexes, len(initial_formulation))
-            offspring_pool.append((createFitness(offspring01), offspring01))
-        i = i + 1
+            offspring_mask = cross_over(p1[1],p2[1], len(initial_formulation))
+        
+        offspring_lists = initial_formulation_np[offspring_mask]
+        if checkFeasible_initial(offspring_lists, 5) == True:
+            offspring_pool.append((createFitness(offspring_lists), offspring_mask))
+
     population = population + offspring_pool
+    print("pop length 2: ", len(population))
     population.sort(key=lambda x: x[0])
-    population = population[:(len(initial_formulation)//2)+1]
+    # take the fittest individual
+    population = population[:POPULATION_SIZE]
 
-    print("next population ", population)
-
+    # print("next population ", population)
+    
+    print("pop length 3: ", len(population))
+    
+print("END")
+for ind, index in zip(population, range(0,5)):
+    print(ind[0])
+    print(initial_formulation_np[ind[1]])
+print("END")
 
 # for _ in range(200):
 #     p1 = select_parent(population)
