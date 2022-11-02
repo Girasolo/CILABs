@@ -68,8 +68,8 @@ def mutation(g, len_):
     point = random.randint(0,len_-1)
     return g[:point] + [not g[point]] + g[point+1:]
 
-def calculateMutationProbability(best_fitness, N, thr):
-    distance = abs(N - best_fitness)
+def calculateMutationProbability(best_candidate, N, thr):
+    distance = abs(N - best_candidate[0])
     return 1-(distance/N)
     if distance < thr:
         # print("hi prob")
@@ -82,9 +82,56 @@ def calculateMutationProbability(best_fitness, N, thr):
         p = 0.4
     return p
 
-N = 20
-POPULATION_SIZE = 30
-OFFSPRING_SIZE = 5
+the_list = list()
+the_list.append((None, None, "initial"))
+the_list_counter = 0
+the_list_current_option = "initial"
+
+def calculateMutationProbabilityDet2(best_candidate, N, thr):
+    global the_list, the_list_current_option
+
+    probability_selected = 0.5
+    probability_reason = ""
+
+    # check if best changed (based on fitness func)
+    if not best_candidate[0] == the_list[-1][0]:
+        the_list = list()
+        the_list.append(best_candidate)
+    else:
+        the_list.append(best_candidate)
+
+    # if list is bigger than 10 select opositive of current best
+    if len(the_list) > 10:
+
+        if len(the_list) < 21:
+            if best_candidate[2] == "mutation":
+                probability_reason= "cross"
+                probability_selected = 0.1
+            else:
+                probability_reason= "mutation"
+                probability_selected = 0.9
+        else:
+            probability_reason = the_list_current_option
+
+        if len(the_list) % 20 == 0:
+            # print("switch")
+            if the_list_current_option == "mutation":
+                probability_reason= "cross"
+                probability_selected = 0.1
+            else:
+                probability_reason= "mutation"
+                probability_selected = 0.9
+    else:
+        probability_reason = "normal"
+        probability_selected = calculateMutationProbability(best_candidate, N, thr)
+
+    the_list_current_option = probability_reason
+    # print(f"{the_list_current_option} selected")
+    return probability_selected
+
+N = 50
+POPULATION_SIZE = 50
+OFFSPRING_SIZE = 50
 
 #Inital list of lists
 
@@ -129,13 +176,13 @@ initial_formulation_np = np.array(initial_formulation, dtype=object)
 
 for _ in range(1000):
     # print("iteration: ", _)
-    print(f"interation {_} with {population[0][0]} because {population[0][2]}")
+    # print(f"interation {_} with {population[0][0]} because {population[0][2]}")
     sum_of_cross = 0
     sum_of_mut = 0
     offspring_pool = list()
     # print("pop length 1: ", len(population))
     i = 0
-    mutation_probability = calculateMutationProbability(population[0][0], N, 5)
+    mutation_probability = calculateMutationProbabilityDet2(population[0], N, 5)
     while len(offspring_pool) != OFFSPRING_SIZE:
         reason = ""
         if random.random() < mutation_probability:
@@ -175,10 +222,10 @@ for _ in range(1000):
     # print("pop length 3: ", len(population))
     
 print("END")
+print(f"size of list {len(the_list)}")
 for ind, index in zip(population, range(0,5)):
-    print(ind[0])
+    print(f"{ind[0]} {ind[2]}")
     # print(initial_formulation_np[ind[1]])
-    print(ind[2])
 print("END")
 
 #for _ in range(200):
