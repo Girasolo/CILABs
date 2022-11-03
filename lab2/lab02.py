@@ -30,11 +30,7 @@ def checkFeasible_offspring(individual01, N, initial_formulation):
     goal = set(list(range(N)))
     mask = np.array(individual01, dtype=int) == 1
     problem_arr = np.array(initial_formulation, dtype=object)
-    #print("problem, ", problem_arr)
-    #print("mask: ", mask)
     decoded_formulation = problem_arr[mask]
-    #decoded_formulation = problem_arr[mask]
-    #print("decode: ", decoded_formulation)
     coverage = set()
     for lst in decoded_formulation:
         coverage.update(lst)
@@ -71,16 +67,6 @@ def mutation(g, len_):
 def calculateMutationProbability(best_candidate, N, thr):
     distance = abs(N - best_candidate[0])
     return 1-(distance/N)
-    if distance < thr:
-        # print("hi prob")
-        # probabilty of mutation 0.9
-        # probability of cross 0.1
-        p=0.9
-    else:
-        # probabilty of mutation 0.1
-        # probability of cross 0.9
-        p = 0.4
-    return p
 
 the_list = list()
 the_list.append((None, None, "initial"))
@@ -114,7 +100,6 @@ def calculateMutationProbabilityDet2(best_candidate, N, thr):
             probability_reason = the_list_current_option
 
         if len(the_list) % 20 == 0:
-            # print("switch")
             if the_list_current_option == "mutation":
                 probability_reason= "cross"
                 probability_selected = 0.1
@@ -161,26 +146,22 @@ while len(population) != (POPULATION_SIZE):
     individual_random_indexes = random.sample(gap, (len(initial_formulation)//2)+1)
     # np array of lists based on random indexes
     individual_lists = np.array(initial_formulation, dtype=object)[individual_random_indexes]
-    # #print(individual_random_indexes)
-    # #print(individual_lists)
     if checkFeasible_initial(individual_lists,N) == True:
         individual = createIndividual_initial(individual_random_indexes, len(initial_formulation))
         population.append((createFitness(individual_lists),individual,"initial"))
 
 initial_formulation_np = np.array(initial_formulation, dtype=object)
 
-# print("STARTING")
-# for ind in population:
-#     print(ind[0])
-# print("STARTING")
+print("STARTING")
+for ind in population:
+    print(ind[0])
+print("STARTING")
 
 for _ in range(1000):
-    # print("iteration: ", _)
-    # print(f"interation {_} with {population[0][0]} because {population[0][2]}")
+    print(f"interation {_}; w:{population[0][0]}; best calculated:{population[0][2]}")
     sum_of_cross = 0
     sum_of_mut = 0
     offspring_pool = list()
-    # print("pop length 1: ", len(population))
     i = 0
     mutation_probability = calculateMutationProbabilityDet2(population[0], N, 5)
     while len(offspring_pool) != OFFSPRING_SIZE:
@@ -202,9 +183,6 @@ for _ in range(1000):
         if checkFeasible_initial(offspring_lists, N) == True:
             offspring_pool.append((createFitness(offspring_lists), offspring_mask, reason))
 
-    # print("mut", sum_of_mut)
-    # print("cross", sum_of_cross)
-
     population = population + offspring_pool
     unique_population = list()
     for ind in population:
@@ -212,24 +190,20 @@ for _ in range(1000):
             unique_population.append(ind)
     unique_population=list(unique_population)
     
-    # print("pop length 2: ", len(unique_population))
     unique_population.sort(key=lambda x: x[0])
     # take the fittest individual
     population = unique_population[:POPULATION_SIZE]
 
-    # print("next population ", population)
-    
-    # print("pop length 3: ", len(population))
-    
 print("END")
 print(f"size of list {len(the_list)}")
 for ind, index in zip(population, range(0,5)):
     print(f"{ind[0]} {ind[2]}")
-    # print(initial_formulation_np[ind[1]])
 print("END")
 
-#for _ in range(200):
 
+
+# for tests
+#for _ in range(200):
 # for _ in range(200):
 # p = select_parent(population)
 # offspring_mask = mutation(p[1], len(initial_formulation))
