@@ -87,7 +87,7 @@ def calculate_mutation_probabilityDet2(best_candidate, N, best_candidate_list):
     return probability_selected
 
 PARAMETERS = {
-    "N":[20],
+    "N":[100, 500, 1000, 5000],
     "POPULATION_SIZE":[200, 300, 500, 600, 1000, 2000, 3000, 5000],
     "OFFSPRING_SIZE":[int(200*2/3), int(300*2/3), int(500*2/3), int(600*2/3), int(1000*2/3), int(2000*2/3), int(3000*2/3), 5000*(2/3)]
     # number of iterations? as 1000 is too small for some N values
