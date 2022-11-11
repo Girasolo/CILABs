@@ -29,19 +29,21 @@ def check_feasibile(individual, N):
     return False
 
 def createFitness(individual):
+    ''' Fitness measurement '''
     fitness = 0
     for list_ in individual:
         fitness += len(list_)
     return fitness
 
 def select_parent(population, tournament_size = 2):
+    ''' Random parent selection by means of a tornament'''
     subset = random.choices(population, k = tournament_size)
     return min(subset, key=lambda i: i [0])
-
+# genetic operators
 def cross_over(g1,g2, len_):
+    '''one cut crossover'''
     cut = random.randint(0,len_-1)
     return g1[:cut] + g2[cut:]
-# cross_over con più tagli
 
 def mutation(g, len_):
     point = random.randint(0,len_-1)
@@ -54,6 +56,7 @@ def calculate_mutation_probability(best_candidate, N):
 best_candidate_option = ""
 
 def calculate_mutation_probabilityDet2(best_candidate, N, best_candidate_list):
+    ''' In case of steady state detection the system is forced to change genetic operator in order to do again some exploration'''
     global best_candidate_option
 
     probability_selected = 0.5
@@ -87,25 +90,27 @@ def calculate_mutation_probabilityDet2(best_candidate, N, best_candidate_list):
                 probability_reason= "mutation"
                 probability_selected = 0.9
     else:
+        # otherwise compute the probability with a scaling factor
         probability_reason = "distance-based"
         probability_selected = calculate_mutation_probability(best_candidate, N)
 
     best_candidate_option = probability_reason
     return probability_selected
 
+# Parameters for the grid search
 PARAMETERS = {
     "N":[20, 100, 500, 1000, 5000],
     "POPULATION_SIZE":[50, 200, 300, 500, 600, 1000, 2000, 3000, 5000],
     "OFFSPRING_SIZE":[int(50*2/3), int(200*2/3), int(300*2/3), int(500*2/3), int(600*2/3), int(1000*2/3), int(2000*2/3), int(3000*2/3), 5000*(2/3)]
-    # number of iterations? as 1000 is too small for some N values
 }
 
+# Parameter grid setup
 configurations = {"configurations": []}
 my_configs = ParameterGrid(PARAMETERS)
 for config in my_configs:
     configurations["configurations"].append(config)
 
-#Inital list of lists
+
 random.seed(42)
 
 with open("results.csv", "a") as csvf:
@@ -117,7 +122,7 @@ with open("results.csv", "a") as csvf:
         config = configurations["configurations"][idx]
 
         start = time.time()
-
+        # initial population
         initial_formulation = problem(config['N'])
         initial_formulation_np = np.array(initial_formulation, dtype=object)
 
@@ -146,12 +151,14 @@ with open("results.csv", "a") as csvf:
             while len(offspring_pool) != config['OFFSPRING_SIZE']:
                 reason = ""
                 if random.random() < mutation_probability:
+                    # mutation (exploitation)
                     p = select_parent(population)
                     sum_of_mut += 1
                     offspring_mask = mutation(p[1], len(initial_formulation))
                     offspring_mask = mutation(offspring_mask, len(initial_formulation))
                     reason = "mutation"
                 else:
+                    # crossover (exploration)
                     p1 = select_parent(population)
                     p2 = select_parent(population)
                     sum_of_cross += 1
@@ -162,10 +169,11 @@ with open("results.csv", "a") as csvf:
                 if check_feasibile(offspring_lists, config['N']) == True and offspring_mask not in offspring_pool_mask:
                     offspring_pool.append((createFitness(offspring_lists), offspring_mask, reason))
                     offspring_pool_mask.append(offspring_mask)
-
+            # "filtered" plus strategy
             population = population + offspring_pool
             unique_population = list()
             unique_population_mask = list()
+            # duplicates removal
             for ind in population:
                 if ind[1] not in unique_population_mask:
                     unique_population.append(ind)
