@@ -1,4 +1,4 @@
-from base64 import decode
+
 import random 
 import numpy as np
 from sklearn.model_selection import ParameterGrid
@@ -22,8 +22,7 @@ def check_feasibile(individual, N):
     goal = set(list(range(N)))
     coverage = set()
     for list_ in individual:
-        for num in list_:
-            coverage.add(num)
+        coverage |= set(list_)
         if coverage == goal:
             return True
     return False
@@ -33,24 +32,27 @@ def createFitness(individual):
     fitness = 0
     for list_ in individual:
         fitness += len(list_)
-    return fitness
+    return -fitness
 
 def select_parent(population, tournament_size = 2):
     ''' Random parent selection by means of a tornament'''
     subset = random.choices(population, k = tournament_size)
-    return min(subset, key=lambda i: i [0])
+    return max(subset, key=lambda i: i [0])
+
 # genetic operators
 def cross_over(g1,g2, len_):
     '''one cut crossover'''
     cut = random.randint(0,len_-1)
     return g1[:cut] + g2[cut:]
 
-def mutation(g, len_):
-    point = random.randint(0,len_-1)
-    return g[:point] + [not g[point]] + g[point+1:]
+def mutation_x_2(g, len_):
+    point1 = random.randint(0,len_-1)
+    offspring_mask = g[:point1] + [not g[point1]] + g[point1+1:]
+    point2 = random.randint(0,len_-1)
+    return offspring_mask[:point2] + [not offspring_mask[point2]] + offspring_mask[point2+1:]
 
 def calculate_mutation_probability(best_candidate, N):
-    distance = abs(N - best_candidate[0])
+    distance = abs(N + best_candidate[0])
     return 1-(distance/N)
 
 best_candidate_option = ""
@@ -99,10 +101,10 @@ def calculate_mutation_probabilityDet2(best_candidate, N, best_candidate_list):
 
 # Parameters for the grid search
 PARAMETERS = {
-    "N":[20, 100, 500, 1000, 5000],
-    "POPULATION_SIZE":[50, 200, 300, 500, 600, 1000, 2000, 3000, 5000],
-    "OFFSPRING_SIZE":[int(50*2/3), int(200*2/3), int(300*2/3), int(500*2/3), int(600*2/3), int(1000*2/3), int(2000*2/3), int(3000*2/3), 5000*(2/3)]
-}
+    "N":[20],#, 100, 500, 1000, 5000],
+    "POPULATION_SIZE":[50],#, 200, 300, 500, 600, 1000, 2000, 3000, 5000],
+    "OFFSPRING_SIZE":[int(30*2/3)]#, int(200*2/3), int(300*2/3), int(500*2/3), int(600*2/3), int(1000*2/3), int(2000*2/3), int(3000*2/3), 5000*(2/3)]
+    }
 
 # Parameter grid setup
 configurations = {"configurations": []}
@@ -113,10 +115,12 @@ for config in my_configs:
 
 random.seed(42)
 
-with open("results.csv", "a") as csvf:
-    header="N,POPULATION_SIZE,OFFSPRING_SIZE,fitness\n"
+
+with open("results.csv", "w") as csvf:
+    header="N,POPULATION_SIZE,OFFSPRING_SIZE,Fitness,Time\n"
     csvf.write(header)
 
+with open("results.csv", "a") as csvf:
     for idx in tqdm(range(len(configurations["configurations"]))):
 
         config = configurations["configurations"][idx]
@@ -126,8 +130,8 @@ with open("results.csv", "a") as csvf:
         initial_formulation = problem(config['N'])
         initial_formulation_np = np.array(initial_formulation, dtype=object)
 
-        mutation_probability_list = list()
-        mutation_probability_list.append((None, None, ""))
+        best_candidate_list = list()
+        best_candidate_list.append((None, None, ""))
         population = list()
 
         # we use a while since if the checks will give always false, i can also have a population that too little in size
@@ -136,9 +140,9 @@ with open("results.csv", "a") as csvf:
             # this avoid duplicate samples of the same index when initializing the first individuals
             random_choices = random.choices([True, False], k=len(initial_formulation))
             # np array of lists based on random indexes
-            individual_lists = initial_formulation_np[random_choices]
-            if check_feasibile(individual_lists,config['N']) == True:
-                population.append((createFitness(individual_lists), random_choices, ""))
+            selected_lists = initial_formulation_np[random_choices]
+            if check_feasibile(selected_lists,config['N']) == True:
+                population.append((createFitness(selected_lists), random_choices, ""))
 
         for _ in range(1000):
             # print(f"interation {_}; w:{population[0][0]}; best calculated:{population[0][2]}")
@@ -147,15 +151,14 @@ with open("results.csv", "a") as csvf:
             offspring_pool = list()
             offspring_pool_mask = list()
             i = 0
-            mutation_probability = calculate_mutation_probabilityDet2(population[0], config['N'], mutation_probability_list)
+            mutation_probability = calculate_mutation_probabilityDet2(population[0], config['N'], best_candidate_list)
             while len(offspring_pool) != config['OFFSPRING_SIZE']:
                 reason = ""
                 if random.random() < mutation_probability:
                     # mutation (exploitation)
                     p = select_parent(population)
                     sum_of_mut += 1
-                    offspring_mask = mutation(p[1], len(initial_formulation))
-                    offspring_mask = mutation(offspring_mask, len(initial_formulation))
+                    offspring_mask = mutation_x_2(p[1], len(initial_formulation))
                     reason = "mutation"
                 else:
                     # crossover (exploration)
@@ -165,9 +168,9 @@ with open("results.csv", "a") as csvf:
                     offspring_mask = cross_over(p1[1],p2[1], len(initial_formulation))
                     reason = "cross"
                 
-                offspring_lists = initial_formulation_np[offspring_mask]
-                if check_feasibile(offspring_lists, config['N']) == True and offspring_mask not in offspring_pool_mask:
-                    offspring_pool.append((createFitness(offspring_lists), offspring_mask, reason))
+                selected_lists = initial_formulation_np[offspring_mask]
+                if check_feasibile(selected_lists, config['N']) == True and offspring_mask not in offspring_pool_mask:
+                    offspring_pool.append((createFitness(selected_lists), offspring_mask, reason))
                     offspring_pool_mask.append(offspring_mask)
             # "filtered" plus strategy
             population = population + offspring_pool
@@ -179,7 +182,7 @@ with open("results.csv", "a") as csvf:
                     unique_population.append(ind)
                     unique_population_mask.append(ind[1])
             unique_population=list(unique_population)
-            unique_population.sort(key=lambda x: x[0])
+            unique_population.sort(key=lambda x: -x[0])
             # take the fittest individual
             population = unique_population[:config['POPULATION_SIZE']]
 
