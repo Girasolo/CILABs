@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 numpy = "^1.23.5"
 logging = "^0.4.9.6"
+jupyter = "^1.0.0"
 
 
 [build-system]
