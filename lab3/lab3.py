@@ -136,14 +136,14 @@ def completion_strategy_with_min2(genome: dict) -> Callable:
                 safety.append(counter)
             counter += 1
 
-        if len(safety) < genome["safety_num"] and len(can_be_safety) > 0:
+        if data["active_rows_number"] == 1:
+            # take the whole last row
+            ply = Nimply(data["longest_row"], state.rows[data["longest_row"]])
+        elif len(safety) < genome["p1"] and len(can_be_safety) > 0:
             # need safety, make a safety
             row_choice = random.choice(can_be_safety)
             ply = Nimply(row_choice, state.rows[row_choice] - 2)
-        elif data["active_rows_number"] == 1:
-            # take the whole last row
-            ply = Nimply(data["longest_row"], state.rows[data["longest_row"]])
-        elif data["completion"] < genome["safety_use"] and len(safety) > 0:
+        elif data["completion"] < genome["p2"] and len(safety) > 0:
             # use safety
             row_choice = random.choice(safety)
             ply = Nimply(row_choice, 1)
@@ -196,13 +196,14 @@ NUM_MATCHES = 100
 logging.getLogger().setLevel(logging.DEBUG)
 best_of_best = []
 p=[2,0.5]
-increment=0.05
+inc_p1=1
+inc_p2=0.05
 NIM_SIZE=11
 for i in range (0,1000):
     nWin=[]
-    for p1 in [p[0] + 1, p[0], p[0] - 1]:
-        for p2 in [p[1] - increment, p[1], p[1] + increment]:
-            nWin.append((evaluate(completion_strategy_with_min2({"safety_num":p1,"safety_use":p2})), [p1, p2]))
+    for p1 in [p[0] + inc_p1, p[0], p[0] - inc_p1]:
+        for p2 in [p[1] - inc_p2, p[1], p[1] + inc_p2]:
+            nWin.append((evaluate(completion_strategy_with_min2({"p1":p1,"p2":p2})), [p1, p2]))
 
     best = max(nWin, key=lambda k: k[0])
     best_of_best.append(best)
