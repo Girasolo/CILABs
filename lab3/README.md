@@ -38,4 +38,18 @@ Our fitness metric is based on reaped test (function evaluate) against a differe
 The parent on which we apply the genetic operator are chosen with a tournament selection which basically consists in selecting two individuals randomly and selecting who has the best fitness.
 Moreover we apply a random gaussian noise to the paramenters of the parent and add it to the offspring list.
 
+## Reinforcement Learning:
+The concept behind this algorithm is that an agent learn to take an action (in this case, play a move) with a "trial-and-error" method in a dynamic environment (i.e, the board at a certain state). In the Nim case, the agent is able to learn not only by its own moves, but even by the opponent ones, based on the optimal strategy (nimSum).
 
+## Reinforcement Learning: Agent
+The agent keep track of the history of all the states explored during trials, and even the possible actions it can do in a certain state: these possible actions are paired with a value. An action could be chosen by a random choice or based on the maximum value of an action.
+
+## Reinforcement Learning: Policy to take an action
+Basically, when the agent is taking an action, a random number is generated. If its value is less than the "random_factor" variable of the agent, a random possible move is performed. Otherwise, we select the best possible move (according to its value) between the enviroment's state possible moves.
+- In a first stage, this random_factor variable is 0.8 (more random moves -> more exploration)
+- When the algorithm reaches the 60% of number of trials, the random_factor is decreased at 0.2 (more "best" moves -> more exploitation)
+
+## Reinforcement Learning: Learning algorithm
+The learning algorithm consists simply in playing a game between the agent and an opponent player that plays with optimal strategy based on NimSum. If it win the game, it receives a reward of +1, otherwise it obtains -1. Based on the reward the agent has received, values of the moves played on a certain state in the history are updated. This update is based on the reward obtained and a parameter alpha. The learning algorithm takes into account also the opponent move and it is performed in two ways: when the agent take the first move, and when the agent doesn't.
+
+## Some results: soon
